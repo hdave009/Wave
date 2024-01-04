@@ -9,15 +9,24 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
+import client.ApiClient
+import models.AppData
 
 @Composable
-fun LoginScreen(onLoginSuccessful: () -> Unit, onNoAccount: () -> Unit) {
+fun LoginScreen(onLoginSuccessful: () -> Unit, onNoAccount: () -> Unit, appData: AppData) {
     var userName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisibility by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
+    var loginError by remember { mutableStateOf("") }
+
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TextField(
@@ -43,8 +52,35 @@ fun LoginScreen(onLoginSuccessful: () -> Unit, onNoAccount: () -> Unit) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        if (isLoading) {
+            CircularProgressIndicator()
+        }
+
+        if (loginError.isNotEmpty()) {
+            Text(loginError, color = MaterialTheme.colors.error)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
         Button(
-            onClick = { onLoginSuccessful() },
+            onClick = {
+                coroutineScope.launch {
+                    isLoading = true
+                    loginError = ""
+                    try {
+                        val response = apiClient.loginRequest(userName, password)
+                        isLoading = false
+                        if (response.statusCode == 200) {
+                            appData.user = response.user
+                            onLoginSuccessful()
+                        } else {
+                            loginError = "Login Failed: ${response.message}"
+                        }
+                    } catch (e: Exception) {
+                        isLoading = false
+                        loginError = "An error occurred: ${e.localizedMessage}"
+                    }
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Login")

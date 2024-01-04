@@ -1,6 +1,7 @@
 package com.harshdave.routes
 
 import LoginRequest
+import LoginResponse
 import RegisterRequest
 import com.harshdave.controllers.AuthController
 import io.ktor.http.*
@@ -19,13 +20,13 @@ fun Routing.authRoutes() {
         post("/login") {
             val loginRequest = Json.decodeFromString<LoginRequest>(call.receiveText())
             val response = authController.login(loginRequest)
-            call.respond(HttpStatusCode(response.statusCode, response.message), Json.encodeToString(response.user))
+            call.respond(HttpStatusCode(response.statusCode, response.message), response)
         }
 
         post("/register") {
             val registerRequest = Json.decodeFromString<RegisterRequest>(call.receiveText())
             val response = authController.register(registerRequest)
-            call.respond(HttpStatusCode(response.statusCode, response.message), Json.encodeToString(response.message))
+            call.respond(HttpStatusCode(response.statusCode, response.message), response)
         }
     }
 

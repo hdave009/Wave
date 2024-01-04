@@ -12,7 +12,7 @@ import models.AppData
 import ui.RegisterScreen
 
 enum class Screen {
-      Login, Register, AllChatsScreen, ChatScreen
+      Welcome, Login, Register, AllChatsScreen, ChatScreen
 }
 
 val ENVIRONMENT = "local"
@@ -22,15 +22,20 @@ val apiClient = ApiClient()
 @Composable
 @Preview
 fun App() {
-    var currentScreen by remember { mutableStateOf(Screen.Login) }
+    var currentScreen by remember { mutableStateOf(Screen.Welcome) }
     val appData by remember { mutableStateOf(AppData(null, null)) }
 
     Column {
         // Compose UI based on the current screen
         when (currentScreen) {
+            Screen.Welcome -> WelcomeScreen(
+                onLogin = {currentScreen = Screen.Login},
+                onRegister = {currentScreen = Screen.Register}
+            )
             Screen.Login -> LoginScreen(
                 onLoginSuccessful = { currentScreen = Screen.AllChatsScreen },
-                onNoAccount = { currentScreen = Screen.Register })
+                onNoAccount = { currentScreen = Screen.Register },
+                appData)
 
             Screen.Register -> RegisterScreen(
                 onRegistrationSuccessful =  { currentScreen = Screen.Login },
@@ -52,7 +57,9 @@ fun App() {
 }
 
 fun main() = application {
-    Window(onCloseRequest = ::exitApplication) {
+    Window(
+        title = "Wave \uD83D\uDC4B",
+        onCloseRequest = ::exitApplication) {
         App()
     }
 }
