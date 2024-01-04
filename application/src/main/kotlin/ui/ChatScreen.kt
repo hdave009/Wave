@@ -7,13 +7,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import models.AppData
 
 @Composable
-fun ChatScreen(userName: String) {
+fun ChatScreen(appData: AppData, onSignOut: () -> Unit) {
     var currentMessage by remember { mutableStateOf("") }
     val messages = remember { mutableStateListOf<Message>() }
 
     Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+        // Sign Out Button
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            Button(onClick = onSignOut) {
+                Text("Sign Out")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Existing layout for MessagesList and message input
         MessagesList(messages, Modifier.weight(1f))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -26,7 +37,7 @@ fun ChatScreen(userName: String) {
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Send),
                 keyboardActions = KeyboardActions(onSend = {
                     if (currentMessage.isNotBlank()) {
-                        messages.add(Message(userName, currentMessage))
+                        messages.add(Message(appData.user!!.name, currentMessage))
                         currentMessage = ""
                     }
                 })
@@ -34,7 +45,7 @@ fun ChatScreen(userName: String) {
             Button(
                 onClick = {
                     if (currentMessage.isNotBlank()) {
-                        messages.add(Message(userName, currentMessage))
+                        messages.add(Message(appData.user!!.name, currentMessage))
                         currentMessage = ""
                     }
                 },
