@@ -54,11 +54,11 @@ fun AllChatsScreen(appData: AppData, onSignOut: () -> Unit, onRoomSelected: (Use
 
                 // List of chat users
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(listOf<User>(User("Harsh Dave", 21), User("John Doe", 32)).filter { user ->
-                        searchQuery.isEmpty() || user.name.contains(searchQuery, ignoreCase = true)
-                    }) { user ->
-                        ChatUserItem(user = user, onClick = { onRoomSelected(user) })
-                    }
+//                    items(listOf<User>(User("Harsh Dave", 21), User("John Doe", 32)).filter { user ->
+//                        searchQuery.isEmpty() || user.name.contains(searchQuery, ignoreCase = true)
+//                    }) { user ->
+//                        ChatUserItem(user = user, onClick = { onRoomSelected(user) })
+//                    }
                 }
             }
 
@@ -83,10 +83,10 @@ fun ChatUserItem(user: User, onClick: () -> Unit) {
         .clickable(onClick = onClick),
         elevation = 4.dp
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = user.name, style = MaterialTheme.typography.h6)
-            // Add more details if necessary
-        }
+//        Column(modifier = Modifier.padding(16.dp)) {
+//            Text(text = user.name, style = MaterialTheme.typography.h6)
+//            // Add more details if necessary
+//        }
     }
 }
 
@@ -127,10 +127,10 @@ fun NewChatModal(onStartChat: (User) -> Unit) {
 @Composable
 fun UserItem(user: User, onClick: () -> Unit) {
     // Simple user item layout
-    ListItem(
-        text = { Text(user.name) },
-        modifier = Modifier.clickable(onClick = onClick)
-    )
+//    ListItem(
+//        text = { Text(user.name) },
+//        modifier = Modifier.clickable(onClick = onClick)
+//    )
 }
 
 fun fetchUsersFromAPI(query: String): List<User> {

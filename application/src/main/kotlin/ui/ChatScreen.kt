@@ -37,7 +37,7 @@ fun ChatScreen(appData: AppData, onSignOut: () -> Unit) {
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Send),
                 keyboardActions = KeyboardActions(onSend = {
                     if (currentMessage.isNotBlank()) {
-                        messages.add(Message(appData.user!!.name, currentMessage))
+                        messages.add(Message(appData.user!!.firstName, currentMessage))
                         currentMessage = ""
                     }
                 })
@@ -45,7 +45,7 @@ fun ChatScreen(appData: AppData, onSignOut: () -> Unit) {
             Button(
                 onClick = {
                     if (currentMessage.isNotBlank()) {
-                        messages.add(Message(appData.user!!.name, currentMessage))
+                        messages.add(Message(appData.user!!.firstName, currentMessage))
                         currentMessage = ""
                     }
                 },

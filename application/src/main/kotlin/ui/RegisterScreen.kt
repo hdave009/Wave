@@ -10,14 +10,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import apiClient
+import kotlinx.coroutines.coroutineScope
+import java.time.LocalDate
 
 @Composable
 fun RegisterScreen(onRegistrationSuccessful: () -> Unit, onBack: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var userName by remember { mutableStateOf("") }
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var dateOfBirth by remember { mutableStateOf("") }
+
+    val performRegistration = remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -29,6 +36,24 @@ fun RegisterScreen(onRegistrationSuccessful: () -> Unit, onBack: () -> Unit) {
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
+            singleLine = true
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        TextField(
+            value = firstName,
+            onValueChange = { firstName = it },
+            label = { Text("First Name") },
+            singleLine = true
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        TextField(
+            value = lastName,
+            onValueChange = { lastName = it },
+            label = { Text("Last Name") },
             singleLine = true
         )
 
@@ -76,10 +101,39 @@ fun RegisterScreen(onRegistrationSuccessful: () -> Unit, onBack: () -> Unit) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { onRegistrationSuccessful() },
+            onClick = {
+                if (email.isBlank() || userName.isBlank() || password.isBlank() || confirmPassword.isBlank() ||
+                    firstName.isBlank() || lastName.isBlank() || dateOfBirth.isBlank()) {
+                    println("Fields must not be blank")
+                } else if (password != confirmPassword) {
+                    println("Passwords do not match")
+                }
+
+                try {
+                    val dateObject = LocalDate.parse(dateOfBirth)
+                } catch (e: Exception) {
+                    println("Invalid Date format")
+                }
+
+                performRegistration.value = true
+                      },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Register")
+        }
+
+        // LaunchedEffect to handle registration
+        LaunchedEffect(performRegistration.value) {
+            if (performRegistration.value) {
+                val response = apiClient.registerRequest(email, userName, password, firstName, lastName, dateOfBirth)
+                if (response.statusCode == 200) {
+                    onRegistrationSuccessful()
+                } else {
+                    println(response.message)
+                }
+                // Reset the state to avoid repeated calls
+                performRegistration.value = false
+            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))

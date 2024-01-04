@@ -22,11 +22,11 @@ class ApiClient {
 
 
     // Function to send a login request to the server
-    suspend fun loginRequest(email: String, password: String): LoginResponse {
+    suspend fun loginRequest(userName: String, password: String): LoginResponse {
         val url = "$baseUrl/auth/login"
 
         // Create a LoginRequest object with email and password
-        val loginRequest = LoginRequest(email, password)
+        val loginRequest = LoginRequest(userName, password)
 
         return try{
             // Send a POST request with the login request
@@ -38,16 +38,16 @@ class ApiClient {
             Json.decodeFromString<LoginResponse>(response.body())
         } catch(e: Exception) {
             // Handle exceptions (e.g., invalid credentials)
-           LoginResponse(400, "Bad Request", null)
+           LoginResponse(400, "Client Side: Error making Request", null)
         }
     }
 
     // Function to send a registration request to the server
-    suspend fun registerRequest(email: String, password: String, firstName: String, lastName: String, role: String): RegisterResponse {
+    suspend fun registerRequest(email: String, userName: String, password: String, firstName: String, lastName: String, dob: String): RegisterResponse {
         val url = "$baseUrl/auth/register"
 
         // Create a LoginRequest object with email and password
-        val registerRequest = RegisterRequest(email, password, firstName, lastName, role)
+        val registerRequest = RegisterRequest(email, userName, password, firstName, lastName, dob)
 
         return try{
             // Send a POST request with the registration request
@@ -57,7 +57,7 @@ class ApiClient {
             // Decode the response to get the login token
             Json.decodeFromString<RegisterResponse>(response.body())
         } catch(e: Exception) {
-            RegisterResponse(400, "Bad Request")
+            RegisterResponse(400, "Client Side: Error making Request")
         }
     }
 
