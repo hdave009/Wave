@@ -1,6 +1,9 @@
 package com.harshdave.plugins
 
 import User
+import com.harshdave.schemas.ChatRoomsTable
+import com.harshdave.schemas.MessagesTable
+import com.harshdave.schemas.RoomsToUsersTable
 import com.harshdave.schemas.UsersTable
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -20,5 +23,8 @@ fun Application.configureDatabases() {
 
     transaction {
         SchemaUtils.create(UsersTable)
+        SchemaUtils.create(ChatRoomsTable)
+        SchemaUtils.create(RoomsToUsersTable)
+        SchemaUtils.create(MessagesTable)
     }
 }

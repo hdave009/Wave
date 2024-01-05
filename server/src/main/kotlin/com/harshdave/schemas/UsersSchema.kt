@@ -14,7 +14,6 @@ import java.time.format.DateTimeParseException
 import java.util.*
 
 object UsersTable : UUIDTable() {
-
     val email = varchar("email", 255).uniqueIndex()
     val hashedPassword = varchar("hashed_password", 64)
     val firstName = varchar("first_name", 50)
@@ -72,6 +71,16 @@ fun UsersTable.doesUserNameExist(userName: String): Boolean {
     }
 }
 
+fun UsersTable.getAllUsersBySearch(substring: String) : List<User> {
+    return transaction {
+        UsersTable.select {
+            (concat(userName, firstName, lastName) like "%$substring%")
+        }.map {
+            toUser(it, showHashedPassword = false)
+        }
+    }
+}
+
 fun isValidDate(date: String): Boolean {
     return try {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
@@ -83,11 +92,11 @@ fun isValidDate(date: String): Boolean {
 }
 
 
-fun toUser(row: ResultRow): User =
+fun toUser(row: ResultRow, showHashedPassword: Boolean = true): User =
     User(
         userId = row[UsersTable.id].value.toString(),
         email = row[UsersTable.email],
-        hashed_password = row[UsersTable.hashedPassword],
+        hashed_password = if (showHashedPassword) { row[UsersTable.hashedPassword] } else "",
         firstName = row[UsersTable.firstName],
         lastName = row[UsersTable.lastName],
         userName = row[UsersTable.userName],

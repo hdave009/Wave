@@ -11,7 +11,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import apiClient
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 @Composable
@@ -23,8 +23,10 @@ fun RegisterScreen(onRegistrationSuccessful: () -> Unit, onBack: () -> Unit) {
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var dateOfBirth by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var registrationError by remember { mutableStateOf("") }
 
-    val performRegistration = remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -100,40 +102,38 @@ fun RegisterScreen(onRegistrationSuccessful: () -> Unit, onBack: () -> Unit) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        if (isLoading) {
+            CircularProgressIndicator()
+        }
+
+        if (registrationError.isNotEmpty()) {
+            Text(registrationError, color = MaterialTheme.colors.error)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
         Button(
             onClick = {
-                if (email.isBlank() || userName.isBlank() || password.isBlank() || confirmPassword.isBlank() ||
-                    firstName.isBlank() || lastName.isBlank() || dateOfBirth.isBlank()) {
-                    println("Fields must not be blank")
-                } else if (password != confirmPassword) {
-                    println("Passwords do not match")
+                coroutineScope.launch {
+                    isLoading = true
+                    registrationError = ""
+                    try {
+                        val dateObject = LocalDate.parse(dateOfBirth)
+                        val response = apiClient.registerRequest(email, userName, password, firstName, lastName, dateOfBirth)
+                        isLoading = false
+                        if (response.statusCode == 200) {
+                            onRegistrationSuccessful()
+                        } else {
+                            registrationError = "Registration Failed: ${response.message}"
+                        }
+                    } catch (e: Exception) {
+                        isLoading = false
+                        registrationError = "An error occurred: ${e.localizedMessage}"
+                    }
                 }
-
-                try {
-                    val dateObject = LocalDate.parse(dateOfBirth)
-                } catch (e: Exception) {
-                    println("Invalid Date format")
-                }
-
-                performRegistration.value = true
-                      },
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Register")
-        }
-
-        // LaunchedEffect to handle registration
-        LaunchedEffect(performRegistration.value) {
-            if (performRegistration.value) {
-                val response = apiClient.registerRequest(email, userName, password, firstName, lastName, dateOfBirth)
-                if (response.statusCode == 200) {
-                    onRegistrationSuccessful()
-                } else {
-                    println(response.message)
-                }
-                // Reset the state to avoid repeated calls
-                performRegistration.value = false
-            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
